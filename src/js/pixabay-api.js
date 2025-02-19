@@ -9,6 +9,7 @@ const axios2 = axios.create({
     }
 });
 
-export function createRequest(q) {
-    return axios2.get("", {params:{q}}).then((res => res.data.hits));
+export async function createRequest(q) {
+    const res = await axios2.get("", { params: { q } });
+    return res.data.hits;
 }

@@ -35,27 +35,26 @@ function handleSubmit(e) {
 
     refs.loader.style.display = "block";
 
-    function fetchImages() {
-        createRequest(search)
-            .then(data => {
-                if (!data.length) {
-                    iziToast.info({
-                        title: "Not found",
-                        message: "😢 No images found.",
-                        position: "topRight",
-                    });
+    async function fetchImages() {
+        const data = await createRequest(search);
+        try{if (!data.length) {
+            iziToast.info({
+                title: "Not found",
+                message: "😢 No images found.",
+                position: "topRight",
+            });
 
-                    refs.cardList.innerHTML = "";
+            refs.cardList.innerHTML = "";
 
-                    return;
-                }
+            return;
+        }
 
-                refs.cardList.innerHTML = requestsMarkups(data);
-                
-                lightbox.refresh();
-            })
-            .catch(error => {
-                iziToast.error({
+        refs.cardList.innerHTML = requestsMarkups(data);
+        
+            lightbox.refresh();
+        }
+        catch (error) {
+            iziToast.error({
                     title: "Error",
                     message: "🚨 Something went wrong. Please try again!",
                     position: "topRight",
@@ -63,11 +62,10 @@ function handleSubmit(e) {
 
                 console.error("❌ API request error:", error);
 
-                refs.cardList.innerHTML = "";
-            })
-            .finally(() => {
-                refs.loader.style.display = "none";
-            });
+                refs.cardList.innerHTML = "";}
+        finally{
+            refs.loader.style.display = "none";
+        };
     }
 
     fetchImages();
