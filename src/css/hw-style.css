@@ -1,0 +1,121 @@
+body{
+    background-color: #182030;
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    column-gap: 8px;
+    row-gap: 32px;
+    flex-wrap: wrap;
+}
+.form-style{
+    display: contents;
+}
+.loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: none;
+    margin: 15px auto;
+    position: relative;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+.loader::after,
+.loader::before {
+    content: '';
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #FF3D00;
+    width: 16px;
+    height: 16px;
+    transform: translate(-50%, 50%);
+    border-radius: 50%;
+}
+
+.loader::before {
+    left: auto;
+    right: 0;
+    background: #FFF;
+    transform: translate(50%, 100%);
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.input-style{
+    border: none;
+    border: 1px solid #808080;
+    border-radius: 4px;
+    width: 272px;
+    height: 40px;
+
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.btn{
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    width: 91px;
+    height: 43px;
+
+    background: #4e75ff;
+
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    color: #fff;
+    padding: 8px 16px;
+}
+
+.card-list{
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 24px;
+    justify-content: center;
+    row-gap: 24px;
+}
+.card{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    border: 1px solid #808080;
+}
+
+.card-image{
+    height: 152px;
+    width: 360px;
+    object-fit: cover;
+}
+
+.card-content{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding-left: 20px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+
+    color: #fff;
+}
+
