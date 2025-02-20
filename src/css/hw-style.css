@@ -82,6 +82,10 @@ body{
     color: #fff;
     padding: 8px 16px;
 }
+.btn:hover{
+    background: #6c8cff;
+    color: #fff;
+}
 
 .card-list{
     display: flex;
@@ -119,3 +123,26 @@ body{
     color: #fff;
 }
 
+.btn-more{
+    display: none;
+    border: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left:  45%;
+    border-radius: 8px;
+    padding: 8px 16px;
+    width: 125px;
+    height: 40px;
+    background: #4e75ff;
+    
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    color: #fff;
+}
+
+.btn-more:hover{
+    background: #6c8cff;
+    color: #fff;
+}
