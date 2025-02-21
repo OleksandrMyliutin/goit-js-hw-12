@@ -1,4 +1,4 @@
-import { createRequest, page, setPage, limit } from './js/pixabay-api.js';
+import { createRequest, page, setPage, limit, totalHits } from './js/pixabay-api.js';
 import { requestsMarkups } from './js/render-functions.js';
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
@@ -16,12 +16,14 @@ let lightbox = new SimpleLightbox('.card-list a', {
     captionsData: "alt",
     captionDelay: 250,
 });
-const totalPages = Math.ceil(100 / limit);
+
+let searchQuery = "";
 
 refs.form.addEventListener("submit", handleSubmit);
+refs.btnMore.addEventListener("click", () => fetchImages(searchQuery));
+refs.btnMore.style.display = "none";
 
-
-function handleSubmit(e) {
+async function handleSubmit(e) {
     e.preventDefault();
     const search = e.currentTarget.elements.query.value.trim();
 
@@ -33,70 +35,78 @@ function handleSubmit(e) {
         });
         return;
     }
-    
 
+    searchQuery = search; // Оновлюємо глобальний пошуковий запит
     refs.cardList.innerHTML = "";
-
     refs.loader.style.display = "block";
-    setPage(1);
-    
+    refs.btnMore.style.display = "none";
 
-    async function fetchImages() {
-        const currentPage = page;
+    setPage(1);
+    await fetchImages(searchQuery, true); // Перший пошук
+
+    e.currentTarget.reset();
+}
+
+async function fetchImages(search, isNewSearch = false) {
+    refs.loader.style.display = "block";
+    const currentPage = page;
+
+    try {
         const data = await createRequest(search, currentPage);
-        if (data.length) {
-            setPage(page + 1);
-        }
-        if (page > totalPages) {
-            return iziToast.error({
-            position: "topRight",
-            message: "We're sorry, but you've reached the end of search results."
-            });
-        }
-        try {
-            if (!data.length) {
+
+        if (!data.length) {
             iziToast.info({
                 title: "Not found",
                 message: "😢 No images found.",
                 position: "topRight",
             });
-                refs.loader.style.display = "none";
-                refs.btnMore.style.display = "none";
-            refs.cardList.innerHTML = "";
-
-            return;
-            }
-            if (page > 1) {
-                refs.btnMore.style.display = "block";
-                refs.btnMore.addEventListener("click", fetchImages);
-            }
-            refs.cardList.insertAdjacentHTML("beforeend", requestsMarkups(data));
-
-            const cardHeight = document.querySelector(".card-list .card").getBoundingClientRect().height;
-            window.scrollBy({
-                top: cardHeight * 2,
-                behavior: "smooth"
-            });
-
-            lightbox.refresh();
-        }
-        catch (error) {
-            iziToast.error({
-                    title: "Error",
-                    message: "🚨 Something went wrong. Please try again!",
-                    position: "topRight",
-                });
-                refs.loader.style.display = "none";
-                refs.btnMore.style.display = "none";
-                console.error("❌ API request error:", error);
-
-                refs.cardList.innerHTML = "";}
-        finally{
             refs.loader.style.display = "none";
-        };
+            refs.btnMore.style.display = "none";
+            refs.cardList.innerHTML = "";
+            return;
+        }
+
+        // Якщо це новий пошук — очищаємо галерею
+        if (isNewSearch) {
+            refs.cardList.innerHTML = "";
+        }
+
+        // Додаємо зображення в UL без додаткового контейнера
+        refs.cardList.insertAdjacentHTML("beforeend", requestsMarkups(data));
+
+        lightbox.refresh();
+
+        // Прокрутка сторінки
+        const cardHeight = document.querySelector(".card-list .card")?.getBoundingClientRect().height || 0;
+        window.scrollBy({
+            top: cardHeight * 2,
+            behavior: "smooth"
+        });
+
+        // Оновлення сторінки
+        setPage(page + 1);
+
+        // Відображення кнопки "Load more"
+        if (page * limit >= totalHits) {
+            refs.btnMore.style.display = "none";
+            iziToast.info({
+                title: "End of results",
+                message: "We're sorry, but you've reached the end of search results.",
+                position: "topRight",
+            });
+        } else {
+            refs.btnMore.style.display = "block";
+        }
     }
-
-    fetchImages();
-
-    e.currentTarget.reset();
+    catch (error) {
+        iziToast.error({
+            title: "Error",
+            message: "🚨 Something went wrong. Please try again!",
+            position: "topRight",
+        });
+        console.error("❌ API request error:", error);
+    }
+    finally {
+        refs.loader.style.display = "none";
+    }
 }

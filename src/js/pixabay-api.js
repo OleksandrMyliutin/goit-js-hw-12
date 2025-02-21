@@ -1,6 +1,8 @@
 import axios from "axios";
 export let page = 1;
 export let limit = 40;
+export let totalHits = 0;
+
 const axios2 = axios.create({
     baseURL: "https://pixabay.com/api/",
     params: {
@@ -15,9 +17,12 @@ export async function createRequest(q, currentPage) {
     const res = await axios2.get("", {
         params: {
             q,
-        per_page: limit,
-        page: currentPage
-    } });
+            per_page: limit,
+            page: currentPage
+        }
+    });
+    
+    totalHits = res.data.totalHits; // Оновлення загальної кількості
     return res.data.hits;
 }
 
