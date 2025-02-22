@@ -17,11 +17,11 @@ let lightbox = new SimpleLightbox('.card-list a', {
     captionDelay: 250,
 });
 
-let searchQuery = "";
+let searchQuery = ""; // Глобальна змінна для збереження пошукового запиту
 
 refs.form.addEventListener("submit", handleSubmit);
-refs.btnMore.addEventListener("click", () => fetchImages(searchQuery));
-refs.btnMore.style.display = "none";
+refs.btnMore.addEventListener("click", loadMoreImages);
+refs.btnMore.style.display = "none"; // Початково приховуємо кнопку "Load more"
 
 async function handleSubmit(e) {
     e.preventDefault();
@@ -41,18 +41,19 @@ async function handleSubmit(e) {
     refs.loader.style.display = "block";
     refs.btnMore.style.display = "none";
 
-    setPage(1);
-    await fetchImages(searchQuery, true); // Перший пошук
+    setPage(1); // Починаємо пошук з першої сторінки
+
+    await fetchImages(true); // Перший пошук
 
     e.currentTarget.reset();
 }
 
-async function fetchImages(search, isNewSearch = false) {
+async function fetchImages(isNewSearch = false) {
     refs.loader.style.display = "block";
     const currentPage = page;
 
     try {
-        const data = await createRequest(search, currentPage);
+        const data = await createRequest(searchQuery, currentPage);
 
         if (!data.length) {
             iziToast.info({
@@ -66,28 +67,27 @@ async function fetchImages(search, isNewSearch = false) {
             return;
         }
 
-        // Якщо це новий пошук — очищаємо галерею
         if (isNewSearch) {
             refs.cardList.innerHTML = "";
         }
 
-        // Додаємо зображення в UL без додаткового контейнера
         refs.cardList.insertAdjacentHTML("beforeend", requestsMarkups(data));
 
         lightbox.refresh();
 
-        // Прокрутка сторінки
+        // Прокручування сторінки після додавання нової групи зображень
         const cardHeight = document.querySelector(".card-list .card")?.getBoundingClientRect().height || 0;
         window.scrollBy({
             top: cardHeight * 2,
             behavior: "smooth"
         });
 
-        // Оновлення сторінки
+        // Оновлюємо сторінку для наступного запиту
         setPage(page + 1);
 
-        // Відображення кнопки "Load more"
-        if (page * limit >= totalHits) {
+        // Логіка кнопки "Load more"
+        const totalPages = Math.ceil(totalHits / limit);
+        if (page > totalPages) {
             refs.btnMore.style.display = "none";
             iziToast.info({
                 title: "End of results",
@@ -109,4 +109,9 @@ async function fetchImages(search, isNewSearch = false) {
     finally {
         refs.loader.style.display = "none";
     }
+}
+
+// Завантаження наступної сторінки при натисканні "Load more"
+function loadMoreImages() {
+    fetchImages();
 }
